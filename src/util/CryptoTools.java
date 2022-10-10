@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
+import java.nio.ByteBuffer;
 
 /**
  * Utility methods useful for cryptanalysis
@@ -148,5 +149,26 @@ public class CryptoTools
 		// Explained in class
 		return ic;
 	}
+	
+	public static byte[] xor(byte[] a, byte[] b) {
+		byte[] result = new byte[a.length];
+		for (int i = 0; i < a.length; i++) {
+			result[i] = (byte) (a[i] ^ b[i]);
+		}
+		return result;
+	}
+	
+	public static byte[] bit_complement(byte[] e) {
+		byte[] result = new byte[e.length];
+		for (int i = 0; i < e.length; i++) {
+			result[i] = (byte) ~e[i];
+		}
+		return result;
+	}
+	
+    public static byte[] convertIntToByteArray(int value) {
+        return  ByteBuffer.allocate(4).putInt(value).array();
+    }
+	
 
 }
