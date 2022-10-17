@@ -65,19 +65,33 @@ public class BlockCipher {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String text = "8A9FF0E2CD27DA4DC7F0C810E73D0E3B3B27CA03762BAE85597995997E625BDF0FEC655994EDD4B0851D7955B3F66717A52F83D01D73ABD9C593DA8C8CCBB073BB19E78442D9AA6D13B307EC0E8EA191E6A21897A82F1A643DC3BE0E12854D01C6006AA1D0EB1B94CAC573908018F284";
-		String key = "FACEBOOK";
-		byte[] text_byte = CryptoTools.hexToBytes(text);
+		String text = "LET US MEET HERE";
+		String key = "DO NOT TELL EVE!";
+		byte[] text_byte = text.getBytes();
 		byte[] key_byte = key.getBytes();
-		byte[] key_inversed = CryptoTools.bit_complement(key_byte);
- 		Key secret = new SecretKeySpec(key_inversed, "DES");
- 		Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+ 		Key secret = new SecretKeySpec(key_byte, "AES");
+ 		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
  		cipher.init(Cipher.DECRYPT_MODE, secret);
  		byte[] ct = cipher.doFinal(text_byte);
- 		Key secret1 = new SecretKeySpec(key_byte, "DES");
- 		cipher.init(Cipher.DECRYPT_MODE, secret1);
- 		byte[] ct1 = cipher.doFinal(ct);
- 		System.out.println(new String(ct1, "UTF-8"));
+		text_byte[0] += 1;
+		byte[] ct1 = cipher.doFinal(text_byte);
+		String ct_result = CryptoTools.bytesToBin(ct);
+		String ct1_result = CryptoTools.bytesToBin(ct1);
+		int result = 0;
+		for (int  i = 0; i < ct_result.length(); i++) {
+			if (ct_result.charAt(i) != ct1_result.charAt(i)) {
+				result++;
+			}
+		}
+		System.out.println(result);
+//		byte[] key_inversed = CryptoTools.bit_complement(key_byte);
+
+ 		
+ 		
+// 		Key secret1 = new SecretKeySpec(key_byte, "DES");
+// 		cipher.init(Cipher.DECRYPT_MODE, secret1);
+// 		byte[] ct1 = cipher.doFinal(ct);
+// 		System.out.println(new String(ct, "UTF-8"));
 	}
 }
 

@@ -3,6 +3,7 @@ package util;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.nio.ByteBuffer;
 
@@ -169,6 +170,11 @@ public class CryptoTools
     public static byte[] convertIntToByteArray(int value) {
         return  ByteBuffer.allocate(4).putInt(value).array();
     }
-	
+    
+    public static String byteToString(byte[] e) throws UnsupportedEncodingException {
+    	String result = new String(e, "UTF-8");
+    	return result;
+    }
+ 	
 
 }
