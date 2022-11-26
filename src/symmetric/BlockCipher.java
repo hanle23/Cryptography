@@ -1,11 +1,11 @@
-package foundation;
+package symmetric;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Base64;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -23,6 +23,22 @@ public class BlockCipher {
 		this.pt = pt;
 		this.key = key;
 	}
+	
+	public BlockCipher(byte[] pt, byte[] key) {
+		this.pt = CryptoTools.bytesToHex(pt);
+		this.key = CryptoTools.bytesToHex(key);
+	}
+	
+	public BlockCipher(byte[] pt, String key) {
+		this.pt = CryptoTools.bytesToHex(pt);
+		this.key = key;
+	}
+	
+	public BlockCipher(String pt, byte[] key) {
+		this.pt = pt;
+		this.key = CryptoTools.bytesToHex(key);
+	}
+	
 	
 	public byte[] encrypt(String constructor, String iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		byte[] iv_new = null;
@@ -51,7 +67,8 @@ public class BlockCipher {
 		}
 		byte[] ky = CryptoTools.hexToBytes(this.key);
 		byte[] pt_new = CryptoTools.hexToBytes(this.pt);
-		Key secret = new SecretKeySpec(ky, "DES");
+		String encription_type = constructor.substring(0, 3);
+		Key secret = new SecretKeySpec(ky, encription_type);
 		Cipher cipher = Cipher.getInstance(constructor);
 		if (iv_new != null) {
 			AlgorithmParameterSpec aps = new IvParameterSpec(iv_new);
@@ -65,33 +82,33 @@ public class BlockCipher {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String text = "LET US MEET HERE";
-		String key = "DO NOT TELL EVE!";
-		byte[] text_byte = text.getBytes();
-		byte[] key_byte = key.getBytes();
- 		Key secret = new SecretKeySpec(key_byte, "AES");
- 		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
- 		cipher.init(Cipher.DECRYPT_MODE, secret);
- 		byte[] ct = cipher.doFinal(text_byte);
-		text_byte[0] += 1;
-		byte[] ct1 = cipher.doFinal(text_byte);
-		String ct_result = CryptoTools.bytesToBin(ct);
-		String ct1_result = CryptoTools.bytesToBin(ct1);
-		int result = 0;
-		for (int  i = 0; i < ct_result.length(); i++) {
-			if (ct_result.charAt(i) != ct1_result.charAt(i)) {
-				result++;
+		String ct_text = "80148EACC62D91D1BA297A477A8B6FBCD1EA13A43859D464";
+		int counter = 0;
+		byte[] ct = CryptoTools.hexToBytes(ct_text);
+		for (int i = 1; i < 3; i++) {
+			if (i % 2 != 0) {
+				String key_text = "HelpThem";
+				String key = CryptoTools.bytesToHex(key_text.getBytes());
+				byte[] current = Arrays.copyOfRange(ct, counter, counter + 8);
+				System.out.println(current.length);
+				BlockCipher temp = new BlockCipher(current, key);
+				String iv_text = "InVector";
+				String IV = CryptoTools.bytesToHex(iv_text.getBytes());
+				byte[] result = temp.decrypt("DES/CBC/NoPadding", IV);
+				System.out.println(CryptoTools.byteToString(result));
+			} else {
+				String key_text = "OurRight";
+				String key = CryptoTools.bytesToHex(key_text.getBytes());
+				byte[] current = Arrays.copyOfRange(ct, counter, counter + 7);
+				BlockCipher temp = new BlockCipher(current, key);
+				String iv_text = "InVector";
+				String IV = CryptoTools.bytesToHex(iv_text.getBytes());
+				byte[] result = temp.decrypt("DES/CBC/PKCS5Padding", IV);
+				System.out.println(CryptoTools.byteToString(result));
 			}
+			counter += 8;
 		}
-		System.out.println(result);
-//		byte[] key_inversed = CryptoTools.bit_complement(key_byte);
-
- 		
- 		
-// 		Key secret1 = new SecretKeySpec(key_byte, "DES");
-// 		cipher.init(Cipher.DECRYPT_MODE, secret1);
-// 		byte[] ct1 = cipher.doFinal(ct);
-// 		System.out.println(new String(ct, "UTF-8"));
+		
 	}
 }
 

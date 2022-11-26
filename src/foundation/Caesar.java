@@ -1,42 +1,26 @@
 package foundation;
 
+import java.io.UnsupportedEncodingException;
+
 import util.CryptoTools;
 
 public class Caesar
 {
-
-	public static void main(String[] args) throws Exception
-	{
-		// --------------------------------------------Clean the data
-		byte[] raw = CryptoTools.fileToBytes("data/queen.txt");
-		for (byte b : raw)	System.out.print((char) b);	System.out.println();
+	public static void encrypt(String fileName, int key) throws Exception {
+		byte[] raw = CryptoTools.fileToBytes(fileName);
 		byte[] pt = CryptoTools.clean(raw);
-		for (byte b : pt) 	System.out.print((char) b);	System.out.println();
-		CryptoTools.bytesToFile(pt, "data/queen.pt");
-		
 		// --------------------------------------------Encrypt the data
-		int key = 19;
 		byte[] ct = new byte[pt.length];
 		for (int i = 0; i < pt.length; i++)
 		{
 			ct[i] = (byte) (((pt[i] - 'A') + key) % 26 + 'A');
-		}
-		for (byte b : ct)	System.out.print((char) b);	System.out.println();
-		CryptoTools.bytesToFile(ct, "data/queen.ct");
-		
-		// --------------------------------------------Cryptanalytic
-		// The most frequent letter in ct is likely the shifted E
-		int[] frq = CryptoTools.getFrequencies(ct);
-		int maxI = 0;
-		for (int i = 0; i < 26; i++)
-		{
-			if (frq[i] > frq[maxI])
-				maxI = i;
-		}
-		int shift = maxI - 4;
-		if (shift < 0) 	shift += 26;
-		System.out.println("Based on most frequent, key is: " + shift);
-
+		}		
+		String newFileName = fileName.substring(0, fileName.indexOf("."));
+		newFileName += ".ct";
+		CryptoTools.bytesToFile(ct, newFileName);
+	}
+	
+	public static int exhaustive(byte[] ct, int[] frq) {
 		// --------------------------------------------Exhaustive
 		// Try every possible key and find the frequency vector closest to English by dot product
 		// for (int f = 0; f < 26; f++) 	System.out.printf("%.2f ", CryptoTools.ENGLISH[f]); System.out.println();
@@ -66,6 +50,47 @@ public class Caesar
 			}
 		}
 		System.out.println("Based on max dot product, key is: " + targetKey);
+		return targetKey;
+	}
+	
+	public static int[] frequency(byte[] ct) {
+		// --------------------------------------------Cryptanalytic
+		// The most frequent letter in ct is likely the shifted E
+		int[] frq = CryptoTools.getFrequencies(ct);
+		int maxI = 0;
+		for (int i = 0; i < 26; i++)
+		{
+			if (frq[i] > frq[maxI])
+				maxI = i;
+		}
+		int shift = maxI - 4;
+		if (shift < 0) 	shift += 26;
+		System.out.println("Based on most frequent, key is: " + shift);
+		return frq;
+	}
+	
+	public static String decrypt(byte[] ct, int key) throws UnsupportedEncodingException {
+		String result = "";
+		byte[] pt = new byte[ct.length];
+		for (int i = 0; i < ct.length; i++)
+		{
+			pt[i] = (byte) ((ct[i] - 'A') - key % 26);
+			if (pt[i] < 0) {
+				pt[i] += 26;
+			}
+			pt[i] = (byte) (pt[i] + 'A');
+		}
+		result = CryptoTools.byteToString(pt);
+		return result;
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		byte[] ct = CryptoTools.fileToBytes("data/MSG2.ct");
+		int[] frq = frequency(ct);
+		String result = decrypt(ct, 22);
+		System.out.println(result);
+
 	}
 
 }

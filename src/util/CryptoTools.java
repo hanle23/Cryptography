@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
+import java.util.Random;
 import java.nio.ByteBuffer;
 
 /**
@@ -146,8 +147,17 @@ public class CryptoTools
 	 **/
 	public static double getIC(byte[] ar)
 	{
-		int ic = 0;
+		double ic = 0;
 		// Explained in class
+		Random rng = new Random();
+		int success = 0;
+		int max = 1000000;
+		for (int exp = 1; exp <= max; exp++) {
+			int pos1 = rng.nextInt(ar.length);
+			int pos2 = rng.nextInt(ar.length);
+			if (pos1 != pos2 && ar[pos1] == ar[pos2]) success++;
+		}
+		ic = success / (double)max;
 		return ic;
 	}
 	
@@ -174,6 +184,16 @@ public class CryptoTools
     public static String byteToString(byte[] e) throws UnsupportedEncodingException {
     	String result = new String(e, "UTF-8");
     	return result;
+    }
+    
+    public static void main(String[] args) {
+    	String pt_text = "YORK";
+    	byte[] pt = pt_text.getBytes();
+    	String ct_hex = "25C2CBDBF2F7FB05";
+    	byte[] ct = hexToBytes(ct_hex);
+    	byte[] result = xor(pt, ct);
+    	String result_hex = bytesToHex(result);
+    	System.out.println(result_hex);
     }
  	
 
