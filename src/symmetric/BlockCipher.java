@@ -81,33 +81,32 @@ public class BlockCipher {
 		return ct;
 	}
 	
+	public static void decrypt_even_odd() throws Exception {
+		String ct = "80148EACC62D91D1BA297A477A8B6FBCD1EA13A43859D464";
+		byte[] iv = "InVector".getBytes();
+		byte[] ky1 = "HelpThem".getBytes();
+		byte[] ky2 = "OurRight".getBytes();
+		byte[] ctext = CryptoTools.hexToBytes(ct);
+		Cipher cipher1 = Cipher.getInstance("DES/CBC/NoPadding");
+		Key secret1 = new SecretKeySpec(ky1, "DES");
+		AlgorithmParameterSpec aps1 = new IvParameterSpec(iv);
+		cipher1.init(Cipher.DECRYPT_MODE, secret1, aps1);
+		byte[] pt1 = cipher1.doFinal(ctext, 0, 8);
+		Cipher cipher2 = Cipher.getInstance("DES/CBC/NoPadding");
+		Key secret2 = new SecretKeySpec(ky2, "DES");
+		AlgorithmParameterSpec aps2 = new IvParameterSpec(ctext, 0, 8);
+		cipher2.init(Cipher.DECRYPT_MODE, secret2, aps2);
+		byte[] pt2 = cipher2.doFinal(ctext, 8, 8);
+		Cipher cipher3 = Cipher.getInstance("DES/CBC/PKCS5Padding");
+		Key secret3 = new SecretKeySpec(ky1, "DES");
+		AlgorithmParameterSpec aps3 = new IvParameterSpec(ctext, 8, 8);
+		cipher3.init(Cipher.DECRYPT_MODE, secret1, aps3);
+		byte[] pt3 = cipher3.doFinal(ctext, 16, 8);
+		System.out.println(CryptoTools.byteToString(pt1) + CryptoTools.byteToString(pt2) + CryptoTools.byteToString(pt3));
+	}
+	
 	public static void main(String[] args) throws Exception {
-		String ct_text = "80148EACC62D91D1BA297A477A8B6FBCD1EA13A43859D464";
-		int counter = 0;
-		byte[] ct = CryptoTools.hexToBytes(ct_text);
-		for (int i = 1; i < 3; i++) {
-			if (i % 2 != 0) {
-				String key_text = "HelpThem";
-				String key = CryptoTools.bytesToHex(key_text.getBytes());
-				byte[] current = Arrays.copyOfRange(ct, counter, counter + 8);
-				System.out.println(current.length);
-				BlockCipher temp = new BlockCipher(current, key);
-				String iv_text = "InVector";
-				String IV = CryptoTools.bytesToHex(iv_text.getBytes());
-				byte[] result = temp.decrypt("DES/CBC/NoPadding", IV);
-				System.out.println(CryptoTools.byteToString(result));
-			} else {
-				String key_text = "OurRight";
-				String key = CryptoTools.bytesToHex(key_text.getBytes());
-				byte[] current = Arrays.copyOfRange(ct, counter, counter + 7);
-				BlockCipher temp = new BlockCipher(current, key);
-				String iv_text = "InVector";
-				String IV = CryptoTools.bytesToHex(iv_text.getBytes());
-				byte[] result = temp.decrypt("DES/CBC/PKCS5Padding", IV);
-				System.out.println(CryptoTools.byteToString(result));
-			}
-			counter += 8;
-		}
+		decrypt_even_odd();
 		
 	}
 }
