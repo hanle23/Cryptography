@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
 import java.nio.ByteBuffer;
@@ -91,6 +92,15 @@ public class CryptoTools
 		}
 		return result.toString();
 	}
+	
+	/**
+	 * Given an array of bytes, convert it to a string of bits.
+	 */
+	public static String binToHex(String bin)
+	{
+		return new BigInteger(bin, 2).toString(16);
+	}
+	
 		
 	/**
 	 * Read the content of a given file and return it as an array of bytes.
@@ -151,7 +161,7 @@ public class CryptoTools
 		// Explained in class
 		Random rng = new Random();
 		int success = 0;
-		int max = 1000000;
+		int max = 100000;
 		for (int exp = 1; exp <= max; exp++) {
 			int pos1 = rng.nextInt(ar.length);
 			int pos2 = rng.nextInt(ar.length);

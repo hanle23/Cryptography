@@ -6,7 +6,7 @@ import util.CryptoTools;
 
 public class Caesar
 {
-	public static void encrypt(String fileName, int key) throws Exception {
+	public static byte[] encrypt(String fileName, int key) throws Exception {
 		byte[] raw = CryptoTools.fileToBytes(fileName);
 		byte[] pt = CryptoTools.clean(raw);
 		// --------------------------------------------Encrypt the data
@@ -18,6 +18,7 @@ public class Caesar
 		String newFileName = fileName.substring(0, fileName.indexOf("."));
 		newFileName += ".ct";
 		CryptoTools.bytesToFile(ct, newFileName);
+		return ct;
 	}
 	
 	public static int exhaustive(byte[] ct, int[] frq) {
@@ -69,28 +70,36 @@ public class Caesar
 		return frq;
 	}
 	
-	public static String decrypt(byte[] ct, int key) throws UnsupportedEncodingException {
-		String result = "";
-		byte[] pt = new byte[ct.length];
+	public static byte[] decrypt(byte[] ct, int key) throws UnsupportedEncodingException {
+		byte[] result = new byte[ct.length];
 		for (int i = 0; i < ct.length; i++)
 		{
-			pt[i] = (byte) ((ct[i] - 'A') - key % 26);
-			if (pt[i] < 0) {
-				pt[i] += 26;
+			result[i] = (byte) ((ct[i] - 'A') - key % 26);
+			if (result[i] < 0) {
+				result[i] += 26;
 			}
-			pt[i] = (byte) (pt[i] + 'A');
+			result[i] = (byte) (result[i] + 'A');
 		}
-		result = CryptoTools.byteToString(pt);
 		return result;
+	}
+	
+	public static byte[] decrypt_exhaust(byte[] ct) throws UnsupportedEncodingException {
+		byte[] pt = new byte[ct.length];
+		int[] frequency = frequency(ct);
+		int key = exhaustive(ct, frequency);
+		pt = decrypt(ct, key);
+		return pt;
 	}
 
 	public static void main(String[] args) throws Exception
 	{
-		byte[] ct = CryptoTools.fileToBytes("data/MSG2.ct");
-		int[] frq = frequency(ct);
-		String result = decrypt(ct, 22);
-		System.out.println(result);
-
+		byte[] ct = encrypt("data/MSG1.txt", 19);
+		int[] freq = frequency(ct);
+		for (int i = 0; i < freq.length; i++) {
+			System.out.println(i + " " + (double) freq[i] / (double) ct.length);
+		}
+		
+		
 	}
 
 }

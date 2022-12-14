@@ -6,6 +6,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -17,36 +18,22 @@ import javax.crypto.spec.SecretKeySpec;
 import util.CryptoTools;
 
 public class BlockCipher {
-	private String pt;
-	private String key;
-	public BlockCipher(String pt, String key) {
-		this.pt = pt;
-		this.key = key;
-	}
+	private byte[] pt;
+	private byte[] key;
 	
 	public BlockCipher(byte[] pt, byte[] key) {
-		this.pt = CryptoTools.bytesToHex(pt);
-		this.key = CryptoTools.bytesToHex(key);
-	}
-	
-	public BlockCipher(byte[] pt, String key) {
-		this.pt = CryptoTools.bytesToHex(pt);
+		this.pt = pt;
 		this.key = key;
 	}
 	
-	public BlockCipher(String pt, byte[] key) {
-		this.pt = pt;
-		this.key = CryptoTools.bytesToHex(key);
-	}
 	
-	
-	public byte[] encrypt(String constructor, String iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public byte[] encrypt(String constructor, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		byte[] iv_new = null;
 		if (iv != null) {
-			iv_new = CryptoTools.hexToBytes(iv);
+			iv_new = iv;
 		}
-		byte[] ky = CryptoTools.hexToBytes(this.key);
-		byte[] pt_new = CryptoTools.hexToBytes(this.pt);
+		byte[] ky = this.key;
+		byte[] pt_new = this.pt;
 		Key secret = new SecretKeySpec(ky, "DES");
 		Cipher cipher = Cipher.getInstance(constructor);
 		if (iv_new != null) {
@@ -60,13 +47,13 @@ public class BlockCipher {
 		return ct;
 	}
 	
-	public byte[] decrypt(String constructor, String iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public byte[] decrypt(String constructor, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		byte[] iv_new = null;
 		if (iv != null) {
-			iv_new = CryptoTools.hexToBytes(iv);
+			iv_new = iv;
 		}
-		byte[] ky = CryptoTools.hexToBytes(this.key);
-		byte[] pt_new = CryptoTools.hexToBytes(this.pt);
+		byte[] ky = this.key;
+		byte[] pt_new = this.pt;
 		String encription_type = constructor.substring(0, 3);
 		Key secret = new SecretKeySpec(ky, encription_type);
 		Cipher cipher = Cipher.getInstance(constructor);
@@ -105,10 +92,55 @@ public class BlockCipher {
 		System.out.println(CryptoTools.byteToString(pt1) + CryptoTools.byteToString(pt2) + CryptoTools.byteToString(pt3));
 	}
 	
-	public static void main(String[] args) throws Exception {
-		decrypt_even_odd();
+	public static void changes_bin() throws Exception {
+		double sum = 0;
+		for (int time = 0; time < 1000; time++) {
+			byte[] key = "universe".getBytes();
+			byte[] pt = "Facebook".getBytes();
+			BlockCipher new_ops = new BlockCipher(pt, key);
+			byte[] result = new_ops.decrypt("DES/ECB/NoPadding", null);
+			String result_bin = CryptoTools.bytesToBin(result);
+			System.out.println("Before flipping: " + result_bin);
+			
+			Random rng = new Random();
+			int num = rng.nextInt(64);
+			System.out.println("Random Number: " + num);
+			String pt_2 = CryptoTools.bytesToBin(pt);
+			if (pt_2.charAt(num) == '1') {
+				pt_2 = pt_2.substring(0, num) + '0' + pt_2.substring(num + 1);
+			} else {
+				pt_2 = pt_2.substring(0, num) + '1' + pt_2.substring(num + 1);
+			}
+			byte[] pt_2_byte = CryptoTools.hexToBytes(CryptoTools.binToHex(pt_2));
+			BlockCipher new_ops_2 = new BlockCipher(pt_2_byte, key);
+			byte[] result_2 = new_ops_2.decrypt("DES/ECB/NoPadding", null);
+			String result_2_bin = CryptoTools.bytesToBin(result_2);
+			System.out.println("After flipping: " + result_2_bin);
+			
+			int changes = 0;
+			for (int i = 0; i < result.length; i++) {
+				if (result_bin.charAt(i) != result_2_bin.charAt(i)) {
+					changes++;
+				}
+			}
+			sum += changes;
+			System.out.println("Changes bin: " + changes);
+		}
 		
+		System.out.println("Average changes: " + (sum / 1000));
+
 	}
+	
+	public static void main(String[] args) throws Exception {
+		byte[] key = "FACEBOOK".getBytes();
+		byte[] comp_key = CryptoTools.bit_complement(key);
+		byte[] ct = CryptoTools.hexToBytes("8A9FF0E2CD27DA4DC7F0C810E73D0E3B3B27CA03762BAE85597995997E625BDF0FEC655994EDD4B0851D7955B3F66717A52F83D01D73ABD9C593DA8C8CCBB073BB19E78442D9AA6D13B307EC0E8EA191E6A21897A82F1A643DC3BE0E12854D01C6006AA1D0EB1B94CAC573908018F284");
+		BlockCipher ops = new BlockCipher(ct, comp_key);
+		byte[] ct_1 = ops.decrypt("DES/ECB/NoPadding", null);
+		BlockCipher ops_2 = new BlockCipher(ct_1, key);
+		byte[] pt = ops_2.decrypt("DES/ECB/NoPadding", null);
+		System.out.println(CryptoTools.byteToString(pt));
+ 	}
 }
 
 
