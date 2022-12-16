@@ -6,6 +6,10 @@ import util.CryptoTools;
 
 public class HashFunction
 {
+	public static void main(String[] args) throws Exception
+	{
+		signature_2();
+	}
 	
 	public static void YMAC() throws Exception {
 		String msg = "Maximum price is @@ plus tax";
@@ -77,9 +81,6 @@ public class HashFunction
 		System.out.println(pt.equals(check));
 		System.out.println(new String(pt.toByteArray()));
 	}
-	public static void main(String[] args) throws Exception
-	{
-		signature_2();
-	}
+
 }
 
