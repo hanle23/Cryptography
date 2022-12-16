@@ -17,6 +17,10 @@ public class HMAC_function
 
 	public static void main(String[] args) throws Exception
 	{
+
+	}
+	
+	public static void D_Q3() throws Exception {
 		String m = "Mainly cloudy with 40 percent chance of showers";
 		String k = "This is an ultra-secret key";
 		byte[] answer = hmac(m.getBytes(), k.getBytes());
@@ -26,7 +30,7 @@ public class HMAC_function
 		System.out.println("JCEhmac answer: " + CryptoTools.bytesToHex(answerJ));
 	}
 	
-	private static byte[] hmac(byte[] msg, byte[] key) throws Exception
+	public static byte[] hmac(byte[] msg, byte[] key) throws Exception
 	{
 		if (key.length > BLOCK) key = hash(key);
 		key = pad(BLOCK, key, (byte) 0);
@@ -37,13 +41,13 @@ public class HMAC_function
 		return hash(cat(tmp1, tmp2));
 	}
 	
-	private static byte[] hash(byte[] a) throws Exception
+	public static byte[] hash(byte[] a) throws Exception
 	{
 		MessageDigest md = MessageDigest.getInstance("SHA1");
 		return md.digest(a);
 	}
 
-	private static byte[] xor(byte[] a, byte[] b)
+	public static byte[] xor(byte[] a, byte[] b)
 	{
 		if (a.length != b.length) throw new RuntimeException("diff size");
 		byte[] result = new byte[a.length];
@@ -52,12 +56,12 @@ public class HMAC_function
 		return result;
 	}
 	
-	private static byte[] cat(byte[] a, byte[] b)
+	public static byte[] cat(byte[] a, byte[] b)
 	{
 		return CryptoTools.hexToBytes(CryptoTools.bytesToHex(a) + CryptoTools.bytesToHex(b));
 	}
 	
-	private static byte[] pad(int target, byte[] ar, byte b)
+	public static byte[] pad(int target, byte[] ar, byte b)
 	{
 		byte[] result = new byte[target];
 		for (int i = 0; i < target; i++)
@@ -65,7 +69,7 @@ public class HMAC_function
 		return result;
 	}
 	
-	private static byte[] JCEhmac(byte[] msg, byte[] key) throws Exception
+	public static byte[] JCEhmac(byte[] msg, byte[] key) throws Exception
 	{
 		Mac m = Mac.getInstance("HmacSha1");
 		Key k = new SecretKeySpec(key, "HmacSha1");
