@@ -17,6 +17,7 @@ public class Vigenere {
         return res;
 
     }
+    
 	public static void main(String[] args) throws Exception {
 		byte[] ct = CryptoTools.fileToBytes("data/MSG4.ct");
 		String key = "A";
