@@ -54,7 +54,7 @@ public class Caesar
 		return targetKey;
 	}
 	
-	public static int[] frequency(byte[] ct) {
+	public static int compute_key(byte[] ct) {
 		// --------------------------------------------Cryptanalytic
 		// The most frequent letter in ct is likely the shifted E
 		int[] frq = CryptoTools.getFrequencies(ct);
@@ -67,7 +67,7 @@ public class Caesar
 		int shift = maxI - 4;
 		if (shift < 0) 	shift += 26;
 		System.out.println("Based on most frequent, key is: " + shift);
-		return frq;
+		return shift;
 	}
 	
 	public static byte[] decrypt(byte[] ct, int key) throws UnsupportedEncodingException {
@@ -85,8 +85,15 @@ public class Caesar
 	
 	public static byte[] decrypt_exhaust(byte[] ct) throws UnsupportedEncodingException {
 		byte[] pt = new byte[ct.length];
-		int[] frequency = frequency(ct);
+		int[] frequency = CryptoTools.getFrequencies(ct);
 		int key = exhaustive(ct, frequency);
+		pt = decrypt(ct, key);
+		return pt;
+	}
+	
+	public static byte[] decrypt_crypta(byte[] ct) throws UnsupportedEncodingException {
+		byte[] pt = new byte[ct.length];
+		int key = compute_key(ct);
 		pt = decrypt(ct, key);
 		return pt;
 	}
@@ -94,10 +101,7 @@ public class Caesar
 	public static void main(String[] args) throws Exception
 	{
 		byte[] ct = encrypt("data/MSG1.txt", 19);
-		int[] freq = frequency(ct);
-		for (int i = 0; i < freq.length; i++) {
-			System.out.println(i + " " + (double) freq[i] / (double) ct.length);
-		}
+		System.out.println(new String(decrypt_crypta(ct)));
 		
 		
 	}
