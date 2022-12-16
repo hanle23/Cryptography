@@ -191,6 +191,10 @@ public class CryptoTools
         return  ByteBuffer.allocate(4).putInt(value).array();
     }
     
+    public static int convertByteArrayToInt(byte[] bytes) {
+    	return ByteBuffer.wrap(bytes).getInt();
+    }
+    
     public static String byteToString(byte[] e) throws UnsupportedEncodingException {
     	String result = new String(e, "UTF-8");
     	return result;
